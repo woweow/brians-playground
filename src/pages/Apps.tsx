@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Calculator, ExternalLink } from 'lucide-react'
+import { Calculator, ExternalLink, Cat } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useNavigationStore } from '@/store/navigation'
@@ -10,11 +10,19 @@ export function Apps() {
   const projects = [
     {
       icon: Calculator,
-      title: 'Smart Calculator',
-      description: 'An advanced calculator with history tracking, scientific functions, and a beautiful interface.',
-      color: 'from-blue-500 to-cyan-500',
-      tags: ['React', 'TypeScript', 'Math.js'],
+      title: 'Cyber Calc',
+      description: 'A futuristic cyberpunk calculator with neon glows, particle effects, glass morphism, and smooth animations.',
+      color: 'from-cyan-500 to-purple-500',
+      tags: ['React', 'TypeScript'],
       page: 'calculator' as const,
+    },
+    {
+      icon: Cat,
+      title: 'Rat Catcher',
+      description: 'A fun, interactive game where you control a cat to catch rats. Test your reflexes and beat your high score!',
+      color: 'from-emerald-500 to-teal-500',
+      tags: ['React', 'TypeScript', 'Game'],
+      page: 'ratcatcher' as const,
     },
   ]
 
