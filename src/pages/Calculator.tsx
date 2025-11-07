@@ -148,57 +148,87 @@ export function Calculator() {
   return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden" style={{pointerEvents: isShattered ? 'none' : 'auto'}}>
-        {/* Shattered calculator overlay - individual shards positioned absolutely */}
+        {/* SHATTER BURST EFFECT */}
         {shatteredCalculator && (
           <>
+            {/* Bright flash burst */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: [0, 1, 0], scale: [0, 2, 3] }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
+              style={{
+                width: '400px',
+                height: '400px',
+                background: 'radial-gradient(circle, rgba(34,211,238,0.8), transparent)',
+                filter: 'blur(40px)',
+              }}
+            />
+
+            {/* Shattered pieces flying apart */}
             {shatteredCalculator.map(shard => {
-              const shardWidth = 100 / COLS // percentage of parent
-              const shardHeight = 100 / ROWS // percentage of parent
               const calcCenterX = typeof window !== 'undefined' ? window.innerWidth / 2 : 0
               const calcCenterY = typeof window !== 'undefined' ? window.innerHeight / 2 : 0
-              const calcWidth = 384 // w-96
-              const calcHeight = 384 // h-96
+
+              // Spread pieces outward from center
+              const angle = (shard.id / shatteredCalculator.length) * Math.PI * 2 + (Math.random() - 0.5) * 0.5
+              const distance = 400 + Math.random() * 300
+              const finalX = Math.cos(angle) * distance
+              const finalY = Math.sin(angle) * distance
+
+              // Alternate colors for different piece types
+              const colors = [
+                { bg: 'rgba(34,211,238,0.4)', border: 'rgba(34,211,238,0.9)', shadow: 'rgba(34,211,238,0.7)' }, // cyan (buttons)
+                { bg: 'rgba(168,85,247,0.4)', border: 'rgba(168,85,247,0.9)', shadow: 'rgba(168,85,247,0.7)' }, // purple (operators)
+                { bg: 'rgba(15,23,42,0.5)', border: 'rgba(34,211,238,0.8)', shadow: 'rgba(59,130,246,0.6)' }, // dark (display)
+              ]
+              const color = colors[shard.id % colors.length]
 
               return (
                 <motion.div
                   key={shard.id}
                   initial={{
-                    x: calcCenterX - calcWidth / 2 + (shardWidth / 100) * calcWidth * (shard.col + 0.5),
-                    y: calcCenterY - calcHeight / 2 + (shardHeight / 100) * calcHeight * (shard.row + 0.5),
+                    x: calcCenterX,
+                    y: calcCenterY,
                     opacity: 1,
                     rotate: 0,
-                    scale: 1,
+                    scale: 0.8,
                   }}
                   animate={{
-                    x: calcCenterX - calcWidth / 2 + (shardWidth / 100) * calcWidth * (shard.col + 0.5) + (Math.random() - 0.5) * 800,
-                    y: window.innerHeight * 0.7 + Math.random() * 300,
-                    opacity: [1, 1, 0.6],
+                    x: calcCenterX + finalX,
+                    y: calcCenterY + finalY + window.innerHeight * 0.3,
+                    opacity: [1, 1, 0.5],
                     rotate: Math.random() * 720,
-                    scale: 1,
+                    scale: 0.9,
                   }}
                   transition={{
-                    duration: 2.4,
-                    delay: shard.delay,
+                    duration: 3,
+                    delay: shard.delay * 0.1,
                     ease: 'easeIn',
                     opacity: {
-                      times: [0, 0.6, 1],
-                      duration: 2.4
+                      times: [0, 0.5, 1],
+                      duration: 3
                     }
                   }}
                   className="fixed pointer-events-none z-50"
                   style={{
-                    width: (shardWidth / 100) * calcWidth,
-                    height: (shardHeight / 100) * calcHeight,
-                    backgroundImage: 'linear-gradient(135deg, rgba(34,211,238,0.5), rgba(168,85,247,0.5))',
-                    border: '3px solid rgba(34,211,238,0.8)',
-                    boxShadow: '0 0 20px rgba(34,211,238,0.6), inset 0 0 10px rgba(168,85,247,0.3)',
-                    backdropFilter: 'blur(1px)',
+                    width: '96px',
+                    height: '96px',
+                    background: color.bg,
+                    border: `4px solid ${color.border}`,
+                    boxShadow: `0 0 30px ${color.shadow}, inset 0 0 15px rgba(255,255,255,0.1)`,
+                    backdropFilter: 'blur(2px)',
+                    borderRadius: '8px',
                   }}
                 />
               )
             })}
           </>
         )}
+
+        {/* Hide calculator when shattered */}
+        {!isShattered && (
+          <>
 
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -344,6 +374,8 @@ export function Calculator() {
             </div>
           </motion.div>
         </div>
+          </>
+        )}
       </div>
     </AppLayout>
   )
