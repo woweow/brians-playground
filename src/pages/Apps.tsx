@@ -11,7 +11,7 @@ export function Apps() {
     {
       icon: Calculator,
       title: 'Cyber Calc',
-      description: 'A futuristic cyberpunk calculator with neon glows, particle effects, glass morphism, and smooth animations.',
+      description: 'A futuristic cyberpunk calculator with neon glows, particle effects, glass morphism, and smooth animations. Try calculating 69 or 420 for a surprise! 🧩',
       color: 'from-cyan-500 to-purple-500',
       tags: ['React', 'TypeScript'],
       page: 'calculator' as const,

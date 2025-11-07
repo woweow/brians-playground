@@ -5,6 +5,68 @@ import { Home, Zap } from 'lucide-react'
 import { useNavigationStore } from '@/store/navigation'
 import { cn } from '@/lib/utils'
 
+const PuzzlePiece = memo(({ id, delay }: { id: number, delay: number }) => {
+  const startX = (Math.random() - 0.5) * 400
+  const startY = (Math.random() - 0.5) * 200 - 100
+  const endX = (Math.random() - 0.5) * 300
+  const endY = typeof window !== 'undefined' ? window.innerHeight + 200 : 1000
+  const rotation = Math.random() * 720
+  const size = 20 + Math.random() * 30
+
+  return (
+    <motion.div
+      initial={{
+        x: startX,
+        y: startY,
+        opacity: 1,
+        rotate: 0,
+        scale: 1
+      }}
+      animate={{
+        x: endX,
+        y: endY,
+        opacity: 0,
+        rotate: rotation,
+        scale: 0.5
+      }}
+      transition={{
+        duration: 2.2,
+        delay: delay,
+        ease: 'easeIn'
+      }}
+      className="fixed pointer-events-none z-50"
+      style={{
+        left: '50%',
+        top: '50%',
+        width: size,
+        height: size,
+        marginLeft: -size / 2,
+        marginTop: -size / 2,
+      }}
+    >
+      <svg viewBox="0 0 100 100" className="w-full h-full" style={{filter: 'drop-shadow(0 0 10px rgba(34,211,238,0.6))'}}>
+        <path
+          d={id % 3 === 0
+            ? "M 30 20 L 70 20 L 80 30 L 80 70 L 70 80 L 30 80 L 20 70 L 20 30 Z" // Square with bumps
+            : id % 3 === 1
+            ? "M 50 10 L 90 30 L 80 70 L 40 90 L 10 70 L 20 30 Z" // Irregular pentagon
+            : "M 30 10 L 70 10 L 95 50 L 70 90 L 30 90 L 5 50 Z" // Diamond-like
+          }
+          fill="url(#gradPuzzle)"
+          stroke="rgba(34,211,238,0.8)"
+          strokeWidth="2"
+        />
+        <defs>
+          <linearGradient id="gradPuzzle" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="rgba(34,211,238,0.8)" />
+            <stop offset="100%" stopColor="rgba(168,85,247,0.8)" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </motion.div>
+  )
+})
+
 export function Calculator() {
   const { setCurrentPage } = useNavigationStore()
   const [display, setDisplay] = useState('0')
@@ -12,6 +74,7 @@ export function Calculator() {
   const [previousValue, setPreviousValue] = useState<number | null>(null)
   const [operation, setOperation] = useState<string | null>(null)
   const [shouldResetDisplay, setShouldResetDisplay] = useState(false)
+  const [explodingPieces, setExplodingPieces] = useState<Array<{id: number, delay: number}> | null>(null)
 
   const handleNumber = useCallback((num: string) => {
     setDisplay(prev => {
@@ -49,6 +112,18 @@ export function Calculator() {
     setPreviousValue(null)
     setOperation(null)
     setShouldResetDisplay(true)
+
+    // Check for the special numbers 69 and 420
+    if (result === 69 || result === 420) {
+      // Create 12 puzzle pieces with staggered delays
+      const pieces = Array.from({length: 12}, (_, i) => ({
+        id: i,
+        delay: i * 0.05
+      }))
+      setExplodingPieces(pieces)
+      // Clear pieces after animation completes
+      setTimeout(() => setExplodingPieces(null), 2500)
+    }
   }, [previousValue, operation, display])
 
   const handleOperation = useCallback((op: string) => {
@@ -123,6 +198,13 @@ export function Calculator() {
 
   return (
     <AppLayout>
+      {/* Puzzle piece explosion */}
+      <AnimatePresence>
+        {explodingPieces && explodingPieces.map(piece => (
+          <PuzzlePiece key={piece.id} id={piece.id} delay={piece.delay} />
+        ))}
+      </AnimatePresence>
+
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
