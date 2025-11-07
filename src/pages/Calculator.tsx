@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import html2canvas from 'html2canvas'
 
 // Helper functions for crack generation
-const generateCrackLines = (centerX: number, centerY: number, width: number, height: number) => {
+const generateCrackLines = (centerX: number, centerY: number, width: number, _height: number) => {
   const lines: Array<{path: string, delay: number}> = []
   const numMainCracks = 8 + Math.floor(Math.random() * 4) // 8-11 main cracks
 
@@ -104,7 +104,6 @@ const generateShatterPieces = (width: number, height: number, imageData: string)
     const centerX = width / 2
     const centerY = height / 2
     const angle = Math.atan2(seed.y - centerY, seed.x - centerX)
-    const distance = Math.sqrt(Math.pow(seed.x - centerX, 2) + Math.pow(seed.y - centerY, 2))
     const velocityMagnitude = 300 + Math.random() * 400
 
     pieces.push({
@@ -134,7 +133,7 @@ export function Calculator() {
   const [shouldResetDisplay, setShouldResetDisplay] = useState(false)
 
   // New shatter animation state
-  const [capturedImage, setCapturedImage] = useState<string | null>(null)
+  const [_capturedImage, setCapturedImage] = useState<string | null>(null)
   const [crackLines, setCrackLines] = useState<Array<{path: string, delay: number}> | null>(null)
   const [shatterPieces, setShatterPieces] = useState<Array<{
     id: number
