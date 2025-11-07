@@ -39,7 +39,7 @@ export function Home() {
           transition={{ delay: 0.2, duration: 0.5 }}
           className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
         >
-          Welcome to My Playground
+          Welcome to my sandbox
         </motion.h1>
 
         <motion.p
@@ -48,8 +48,7 @@ export function Home() {
           transition={{ delay: 0.4, duration: 0.5 }}
           className="text-xl md:text-2xl text-slate-300 mb-12 max-w-2xl mx-auto"
         >
-          A space where creativity meets technology. Explore interactive experiences,
-          discover innovative projects, and dive into the world of modern web development.
+          A place for experimentation and exploration. The Apps section is where my random projects live.
         </motion.p>
 
         <motion.div
