@@ -1,5 +1,5 @@
 import { useState, useCallback, memo } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { AppLayout } from '@/components/AppLayout'
 import { Home, Zap } from 'lucide-react'
 import { useNavigationStore } from '@/store/navigation'
