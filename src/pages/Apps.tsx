@@ -2,8 +2,11 @@ import { motion } from 'framer-motion'
 import { Calculator, ExternalLink } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { useNavigationStore } from '@/store/navigation'
 
 export function Apps() {
+  const { setCurrentPage } = useNavigationStore()
+
   const projects = [
     {
       icon: Calculator,
@@ -11,6 +14,7 @@ export function Apps() {
       description: 'An advanced calculator with history tracking, scientific functions, and a beautiful interface.',
       color: 'from-blue-500 to-cyan-500',
       tags: ['React', 'TypeScript', 'Math.js'],
+      page: 'calculator' as const,
     },
   ]
 
@@ -41,6 +45,7 @@ export function Apps() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 + index * 0.1 }}
                 whileHover={{ y: -8 }}
+                onClick={() => setCurrentPage(project.page)}
               >
                 <Card className="h-full hover:border-slate-700 transition-all cursor-pointer group">
                   <CardHeader>

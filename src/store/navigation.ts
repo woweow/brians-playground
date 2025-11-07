@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-type Page = 'home' | 'about' | 'apps'
+type Page = 'home' | 'about' | 'apps' | 'calculator'
 
 interface NavigationState {
   currentPage: Page
