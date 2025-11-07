@@ -1,71 +1,9 @@
 import { useState, useCallback, memo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { AppLayout } from '@/components/AppLayout'
 import { Home, Zap } from 'lucide-react'
 import { useNavigationStore } from '@/store/navigation'
 import { cn } from '@/lib/utils'
-
-const PuzzlePiece = memo(({ id, delay }: { id: number, delay: number }) => {
-  const startX = (Math.random() - 0.5) * 400
-  const startY = (Math.random() - 0.5) * 200 - 100
-  const endX = (Math.random() - 0.5) * 300
-  const endY = typeof window !== 'undefined' ? window.innerHeight + 200 : 1000
-  const rotation = Math.random() * 720
-  const size = 20 + Math.random() * 30
-
-  return (
-    <motion.div
-      initial={{
-        x: startX,
-        y: startY,
-        opacity: 1,
-        rotate: 0,
-        scale: 1
-      }}
-      animate={{
-        x: endX,
-        y: endY,
-        opacity: 0,
-        rotate: rotation,
-        scale: 0.5
-      }}
-      transition={{
-        duration: 2.2,
-        delay: delay,
-        ease: 'easeIn'
-      }}
-      className="fixed pointer-events-none z-50"
-      style={{
-        left: '50%',
-        top: '50%',
-        width: size,
-        height: size,
-        marginLeft: -size / 2,
-        marginTop: -size / 2,
-      }}
-    >
-      <svg viewBox="0 0 100 100" className="w-full h-full" style={{filter: 'drop-shadow(0 0 10px rgba(34,211,238,0.6))'}}>
-        <path
-          d={id % 3 === 0
-            ? "M 30 20 L 70 20 L 80 30 L 80 70 L 70 80 L 30 80 L 20 70 L 20 30 Z" // Square with bumps
-            : id % 3 === 1
-            ? "M 50 10 L 90 30 L 80 70 L 40 90 L 10 70 L 20 30 Z" // Irregular pentagon
-            : "M 30 10 L 70 10 L 95 50 L 70 90 L 30 90 L 5 50 Z" // Diamond-like
-          }
-          fill="url(#gradPuzzle)"
-          stroke="rgba(34,211,238,0.8)"
-          strokeWidth="2"
-        />
-        <defs>
-          <linearGradient id="gradPuzzle" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(34,211,238,0.8)" />
-            <stop offset="100%" stopColor="rgba(168,85,247,0.8)" />
-          </linearGradient>
-        </defs>
-      </svg>
-    </motion.div>
-  )
-})
 
 export function Calculator() {
   const { setCurrentPage } = useNavigationStore()
@@ -74,7 +12,10 @@ export function Calculator() {
   const [previousValue, setPreviousValue] = useState<number | null>(null)
   const [operation, setOperation] = useState<string | null>(null)
   const [shouldResetDisplay, setShouldResetDisplay] = useState(false)
-  const [explodingPieces, setExplodingPieces] = useState<Array<{id: number, delay: number}> | null>(null)
+  const [shatteredCalculator, setShatteredCalculator] = useState<Array<{id: number, row: number, col: number, delay: number}> | null>(null)
+  const [isShattered, setIsShattered] = useState(false)
+  const ROWS = 4
+  const COLS = 4
 
   const handleNumber = useCallback((num: string) => {
     setDisplay(prev => {
@@ -115,14 +56,22 @@ export function Calculator() {
 
     // Check for the special numbers 69 and 420
     if (result === 69 || result === 420) {
-      // Create 12 puzzle pieces with staggered delays
-      const pieces = Array.from({length: 12}, (_, i) => ({
-        id: i,
-        delay: i * 0.05
-      }))
-      setExplodingPieces(pieces)
-      // Clear pieces after animation completes
-      setTimeout(() => setExplodingPieces(null), 2500)
+      // Create a grid of shards covering the calculator
+      const shards = []
+      let id = 0
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          shards.push({
+            id: id,
+            row,
+            col,
+            delay: (row + col) * 0.05
+          })
+          id++
+        }
+      }
+      setShatteredCalculator(shards)
+      setIsShattered(true)
     }
   }, [previousValue, operation, display])
 
@@ -198,14 +147,59 @@ export function Calculator() {
 
   return (
     <AppLayout>
-      {/* Puzzle piece explosion */}
-      <AnimatePresence>
-        {explodingPieces && explodingPieces.map(piece => (
-          <PuzzlePiece key={piece.id} id={piece.id} delay={piece.delay} />
-        ))}
-      </AnimatePresence>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden" style={{pointerEvents: isShattered ? 'none' : 'auto'}}>
+        {/* Shattered calculator overlay - individual shards positioned absolutely */}
+        {shatteredCalculator && (
+          <>
+            {shatteredCalculator.map(shard => {
+              const shardWidth = 100 / COLS // percentage of parent
+              const shardHeight = 100 / ROWS // percentage of parent
+              const calcCenterX = typeof window !== 'undefined' ? window.innerWidth / 2 : 0
+              const calcCenterY = typeof window !== 'undefined' ? window.innerHeight / 2 : 0
+              const calcWidth = 384 // w-96
+              const calcHeight = 384 // h-96
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden">
+              return (
+                <motion.div
+                  key={shard.id}
+                  initial={{
+                    x: calcCenterX - calcWidth / 2 + (shardWidth / 100) * calcWidth * (shard.col + 0.5),
+                    y: calcCenterY - calcHeight / 2 + (shardHeight / 100) * calcHeight * (shard.row + 0.5),
+                    opacity: 1,
+                    rotate: 0,
+                    scale: 1,
+                  }}
+                  animate={{
+                    x: calcCenterX - calcWidth / 2 + (shardWidth / 100) * calcWidth * (shard.col + 0.5) + (Math.random() - 0.5) * 800,
+                    y: window.innerHeight * 0.7 + Math.random() * 300,
+                    opacity: [1, 1, 0.6],
+                    rotate: Math.random() * 720,
+                    scale: 1,
+                  }}
+                  transition={{
+                    duration: 2.4,
+                    delay: shard.delay,
+                    ease: 'easeIn',
+                    opacity: {
+                      times: [0, 0.6, 1],
+                      duration: 2.4
+                    }
+                  }}
+                  className="fixed pointer-events-none z-50"
+                  style={{
+                    width: (shardWidth / 100) * calcWidth,
+                    height: (shardHeight / 100) * calcHeight,
+                    backgroundImage: 'linear-gradient(135deg, rgba(34,211,238,0.5), rgba(168,85,247,0.5))',
+                    border: '3px solid rgba(34,211,238,0.8)',
+                    boxShadow: '0 0 20px rgba(34,211,238,0.6), inset 0 0 10px rgba(168,85,247,0.3)',
+                    backdropFilter: 'blur(1px)',
+                  }}
+                />
+              )
+            })}
+          </>
+        )}
+
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full blur-3xl" />
