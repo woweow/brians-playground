@@ -1,21 +1,152 @@
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, memo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AppLayout } from '@/components/AppLayout'
 import { Home, Zap } from 'lucide-react'
 import { useNavigationStore } from '@/store/navigation'
 import { cn } from '@/lib/utils'
+import html2canvas from 'html2canvas'
+
+// Helper functions for crack generation
+const generateCrackLines = (centerX: number, centerY: number, width: number, height: number) => {
+  const lines: Array<{path: string, delay: number}> = []
+  const numMainCracks = 8 + Math.floor(Math.random() * 4) // 8-11 main cracks
+
+  for (let i = 0; i < numMainCracks; i++) {
+    const angle = (i / numMainCracks) * Math.PI * 2 + (Math.random() - 0.5) * 0.3
+    const length = (width * 0.4) + Math.random() * (width * 0.3)
+    const endX = centerX + Math.cos(angle) * length
+    const endY = centerY + Math.sin(angle) * length
+
+    // Create jagged path
+    const segments = 5 + Math.floor(Math.random() * 3)
+    let path = `M ${centerX} ${centerY}`
+
+    for (let j = 1; j <= segments; j++) {
+      const progress = j / segments
+      const x = centerX + (endX - centerX) * progress + (Math.random() - 0.5) * 20
+      const y = centerY + (endY - centerY) * progress + (Math.random() - 0.5) * 20
+      path += ` L ${x} ${y}`
+    }
+
+    lines.push({ path, delay: i * 0.015 })
+
+    // Add branching cracks
+    if (Math.random() > 0.5) {
+      const branchProgress = 0.4 + Math.random() * 0.3
+      const branchX = centerX + (endX - centerX) * branchProgress
+      const branchY = centerY + (endY - centerY) * branchProgress
+      const branchAngle = angle + (Math.random() - 0.5) * Math.PI / 2
+      const branchLength = length * (0.3 + Math.random() * 0.3)
+
+      let branchPath = `M ${branchX} ${branchY}`
+      const branchSegments = 3
+      for (let k = 1; k <= branchSegments; k++) {
+        const bProgress = k / branchSegments
+        const bx = branchX + Math.cos(branchAngle) * branchLength * bProgress + (Math.random() - 0.5) * 15
+        const by = branchY + Math.sin(branchAngle) * branchLength * bProgress + (Math.random() - 0.5) * 15
+        branchPath += ` L ${bx} ${by}`
+      }
+      lines.push({ path: branchPath, delay: i * 0.015 + 0.05 })
+    }
+  }
+
+  return lines
+}
+
+// Generate irregular polygon pieces for shattering
+const generateShatterPieces = (width: number, height: number, imageData: string) => {
+  const pieces: Array<{
+    id: number
+    clipPath: string
+    centerX: number
+    centerY: number
+    rotation: number
+    velocity: {x: number, y: number}
+    imageData: string
+  }> = []
+
+  // Create a Voronoi-like pattern with random seed points
+  const numPieces = 16 + Math.floor(Math.random() * 6) // 16-21 pieces
+  const seedPoints: Array<{x: number, y: number}> = []
+
+  // Generate seed points in a grid-ish pattern with randomness
+  const gridSize = Math.ceil(Math.sqrt(numPieces))
+  for (let i = 0; i < numPieces; i++) {
+    const row = Math.floor(i / gridSize)
+    const col = i % gridSize
+    const x = (col / gridSize) * width + (Math.random() - 0.5) * (width / gridSize) * 0.8
+    const y = (row / gridSize) * height + (Math.random() - 0.5) * (height / gridSize) * 0.8
+    seedPoints.push({ x: Math.max(0, Math.min(width, x)), y: Math.max(0, Math.min(height, y)) })
+  }
+
+  // Create polygon for each seed point using simplified Voronoi
+  seedPoints.forEach((seed, idx) => {
+    // Create irregular polygon around seed point
+    const numVertices = 5 + Math.floor(Math.random() * 3) // 5-7 vertices
+    const vertices: Array<{x: number, y: number}> = []
+    const baseRadius = Math.min(width, height) / gridSize * 0.8
+
+    for (let i = 0; i < numVertices; i++) {
+      const angle = (i / numVertices) * Math.PI * 2
+      const radius = baseRadius * (0.7 + Math.random() * 0.6)
+      const x = seed.x + Math.cos(angle) * radius
+      const y = seed.y + Math.sin(angle) * radius
+      vertices.push({
+        x: Math.max(0, Math.min(width, x)),
+        y: Math.max(0, Math.min(height, y))
+      })
+    }
+
+    // Create clip-path polygon
+    const clipPath = vertices.map(v => `${(v.x / width * 100).toFixed(2)}% ${(v.y / height * 100).toFixed(2)}%`).join(', ')
+
+    // Calculate explosion velocity from center
+    const centerX = width / 2
+    const centerY = height / 2
+    const angle = Math.atan2(seed.y - centerY, seed.x - centerX)
+    const distance = Math.sqrt(Math.pow(seed.x - centerX, 2) + Math.pow(seed.y - centerY, 2))
+    const velocityMagnitude = 300 + Math.random() * 400
+
+    pieces.push({
+      id: idx,
+      clipPath: `polygon(${clipPath})`,
+      centerX: (seed.x / width * 100),
+      centerY: (seed.y / height * 100),
+      rotation: (Math.random() - 0.5) * 720,
+      velocity: {
+        x: Math.cos(angle) * velocityMagnitude,
+        y: Math.sin(angle) * velocityMagnitude - 200 // Initial upward thrust
+      },
+      imageData
+    })
+  })
+
+  return pieces
+}
 
 export function Calculator() {
   const { setCurrentPage } = useNavigationStore()
+  const calculatorRef = useRef<HTMLDivElement>(null)
   const [display, setDisplay] = useState('0')
   const [equation, setEquation] = useState('')
   const [previousValue, setPreviousValue] = useState<number | null>(null)
   const [operation, setOperation] = useState<string | null>(null)
   const [shouldResetDisplay, setShouldResetDisplay] = useState(false)
-  const [shatteredCalculator, setShatteredCalculator] = useState<Array<{id: number, row: number, col: number, delay: number}> | null>(null)
+
+  // New shatter animation state
+  const [capturedImage, setCapturedImage] = useState<string | null>(null)
+  const [crackLines, setCrackLines] = useState<Array<{path: string, delay: number}> | null>(null)
+  const [shatterPieces, setShatterPieces] = useState<Array<{
+    id: number
+    clipPath: string
+    centerX: number
+    centerY: number
+    rotation: number
+    velocity: {x: number, y: number}
+    imageData: string
+  }> | null>(null)
   const [isShattered, setIsShattered] = useState(false)
-  const ROWS = 4
-  const COLS = 4
+  const [showCracks, setShowCracks] = useState(false)
 
   const handleNumber = useCallback((num: string) => {
     setDisplay(prev => {
@@ -27,7 +158,7 @@ export function Calculator() {
     })
   }, [shouldResetDisplay])
 
-  const handleEquals = useCallback(() => {
+  const handleEquals = useCallback(async () => {
     if (previousValue === null || operation === null) return
 
     const current = parseFloat(display)
@@ -56,22 +187,39 @@ export function Calculator() {
 
     // Check for the special numbers 69 and 420
     if (result === 69 || result === 420) {
-      // Create a grid of shards covering the calculator
-      const shards = []
-      let id = 0
-      for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-          shards.push({
-            id: id,
-            row,
-            col,
-            delay: (row + col) * 0.05
+      // Capture calculator before shattering
+      if (calculatorRef.current) {
+        try {
+          const canvas = await html2canvas(calculatorRef.current, {
+            backgroundColor: 'transparent',
+            scale: 2,
+            logging: false,
           })
-          id++
+          const imageData = canvas.toDataURL('image/png')
+          setCapturedImage(imageData)
+
+          const rect = calculatorRef.current.getBoundingClientRect()
+          const centerX = rect.width / 2
+          const centerY = rect.height / 2
+
+          // Generate crack lines
+          const cracks = generateCrackLines(centerX, centerY, rect.width, rect.height)
+          setCrackLines(cracks)
+
+          // Show cracks first
+          setShowCracks(true)
+
+          // After crack animation, shatter into pieces
+          setTimeout(() => {
+            const pieces = generateShatterPieces(rect.width, rect.height, imageData)
+            setShatterPieces(pieces)
+            setIsShattered(true)
+            setShowCracks(false)
+          }, 400) // Delay before shattering
+        } catch (error) {
+          console.error('Failed to capture calculator:', error)
         }
       }
-      setShatteredCalculator(shards)
-      setIsShattered(true)
     }
   }, [previousValue, operation, display])
 
@@ -148,79 +296,110 @@ export function Calculator() {
   return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden" style={{pointerEvents: isShattered ? 'none' : 'auto'}}>
-        {/* SHATTER BURST EFFECT */}
-        {shatteredCalculator && (
+        {/* PHASE 1: CRACK LINES ANIMATION */}
+        {showCracks && crackLines && calculatorRef.current && (
+          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+            <svg
+              width={calculatorRef.current.offsetWidth}
+              height={calculatorRef.current.offsetHeight}
+              className="absolute"
+              style={{
+                filter: 'drop-shadow(0 0 8px rgba(34,211,238,0.8))',
+              }}
+            >
+              {crackLines.map((crack, idx) => (
+                <motion.path
+                  key={idx}
+                  d={crack.path}
+                  stroke="rgba(255,255,255,0.9)"
+                  strokeWidth="2"
+                  fill="none"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{
+                    pathLength: { duration: 0.3, delay: crack.delay, ease: 'easeOut' },
+                    opacity: { duration: 0.1, delay: crack.delay }
+                  }}
+                />
+              ))}
+            </svg>
+          </div>
+        )}
+
+        {/* PHASE 2 & 3: SHATTER AND FALL */}
+        {isShattered && shatterPieces && calculatorRef.current && (
           <>
             {/* Bright flash burst */}
             <motion.div
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: [0, 1, 0], scale: [0, 2, 3] }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none"
               style={{
-                width: '400px',
-                height: '400px',
-                background: 'radial-gradient(circle, rgba(34,211,238,0.8), transparent)',
-                filter: 'blur(40px)',
+                width: '500px',
+                height: '500px',
+                background: 'radial-gradient(circle, rgba(34,211,238,0.9), transparent)',
+                filter: 'blur(60px)',
               }}
             />
 
-            {/* Shattered pieces flying apart */}
-            {shatteredCalculator.map(shard => {
-              const calcCenterX = typeof window !== 'undefined' ? window.innerWidth / 2 : 0
-              const calcCenterY = typeof window !== 'undefined' ? window.innerHeight / 2 : 0
-
-              // Spread pieces outward from center
-              const angle = (shard.id / shatteredCalculator.length) * Math.PI * 2 + (Math.random() - 0.5) * 0.5
-              const distance = 400 + Math.random() * 300
-              const finalX = Math.cos(angle) * distance
-              const finalY = Math.sin(angle) * distance
-
-              // Alternate colors for different piece types
-              const colors = [
-                { bg: 'rgba(34,211,238,0.4)', border: 'rgba(34,211,238,0.9)', shadow: 'rgba(34,211,238,0.7)' }, // cyan (buttons)
-                { bg: 'rgba(168,85,247,0.4)', border: 'rgba(168,85,247,0.9)', shadow: 'rgba(168,85,247,0.7)' }, // purple (operators)
-                { bg: 'rgba(15,23,42,0.5)', border: 'rgba(34,211,238,0.8)', shadow: 'rgba(59,130,246,0.6)' }, // dark (display)
-              ]
-              const color = colors[shard.id % colors.length]
+            {/* Shattered pieces with actual calculator content */}
+            {shatterPieces.map(piece => {
+              const rect = calculatorRef.current!.getBoundingClientRect()
+              const startX = rect.left
+              const startY = rect.top
 
               return (
                 <motion.div
-                  key={shard.id}
+                  key={piece.id}
                   initial={{
-                    x: calcCenterX,
-                    y: calcCenterY,
+                    x: startX,
+                    y: startY,
                     opacity: 1,
                     rotate: 0,
-                    scale: 0.8,
                   }}
                   animate={{
-                    x: calcCenterX + finalX,
-                    y: calcCenterY + finalY + window.innerHeight * 0.3,
-                    opacity: [1, 1, 0.5],
-                    rotate: Math.random() * 720,
-                    scale: 0.9,
+                    x: startX + piece.velocity.x,
+                    y: [
+                      startY,
+                      startY + piece.velocity.y,
+                      startY + piece.velocity.y + window.innerHeight * 1.5 // Fall off screen
+                    ],
+                    opacity: [1, 1, 0.7, 0],
+                    rotate: piece.rotation,
                   }}
                   transition={{
-                    duration: 3,
-                    delay: shard.delay * 0.1,
+                    duration: 2.5,
+                    delay: piece.id * 0.02,
                     ease: 'easeIn',
+                    y: {
+                      duration: 2.5,
+                      ease: [0.25, 0.46, 0.45, 0.94], // Gravity easing
+                    },
                     opacity: {
-                      times: [0, 0.5, 1],
-                      duration: 3
+                      times: [0, 0.3, 0.7, 1],
+                      duration: 2.5
                     }
                   }}
                   className="fixed pointer-events-none z-50"
                   style={{
-                    width: '96px',
-                    height: '96px',
-                    background: color.bg,
-                    border: `4px solid ${color.border}`,
-                    boxShadow: `0 0 30px ${color.shadow}, inset 0 0 15px rgba(255,255,255,0.1)`,
-                    backdropFilter: 'blur(2px)',
-                    borderRadius: '8px',
+                    width: rect.width,
+                    height: rect.height,
+                    transformOrigin: `${piece.centerX}% ${piece.centerY}%`,
                   }}
-                />
+                >
+                  <div
+                    className="w-full h-full"
+                    style={{
+                      clipPath: piece.clipPath,
+                      backgroundImage: `url(${piece.imageData})`,
+                      backgroundSize: `${rect.width}px ${rect.height}px`,
+                      backgroundPosition: '0 0',
+                      backgroundRepeat: 'no-repeat',
+                      filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))',
+                    }}
+                  />
+                </motion.div>
               )
             })}
           </>
@@ -273,6 +452,7 @@ export function Calculator() {
 
             {/* Calculator body */}
             <motion.div
+              ref={calculatorRef}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
