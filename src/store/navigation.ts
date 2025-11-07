@@ -8,12 +8,32 @@ interface NavigationState {
   setCurrentPage: (page: Page) => void
   toggleMenu: () => void
   closeMenu: () => void
+  initializeFromUrl: () => void
+}
+
+// Helper function to get page from URL hash
+const getPageFromHash = (): Page => {
+  const hash = window.location.hash.slice(1) // Remove #
+  const validPages: Page[] = ['home', 'about', 'apps', 'calculator', 'ratcatcher']
+  return validPages.includes(hash as Page) ? (hash as Page) : 'home'
+}
+
+// Helper function to update URL hash
+const updateHash = (page: Page) => {
+  window.location.hash = page
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
-  currentPage: 'home',
+  currentPage: getPageFromHash(),
   isMenuOpen: false,
-  setCurrentPage: (page) => set({ currentPage: page, isMenuOpen: false }),
+  setCurrentPage: (page) => {
+    updateHash(page)
+    set({ currentPage: page, isMenuOpen: false })
+  },
   toggleMenu: () => set((state) => ({ isMenuOpen: !state.isMenuOpen })),
   closeMenu: () => set({ isMenuOpen: false }),
+  initializeFromUrl: () => {
+    const page = getPageFromHash()
+    set({ currentPage: page })
+  },
 }))

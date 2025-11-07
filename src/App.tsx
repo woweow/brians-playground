@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Layout } from './components/Layout'
 import { Home } from './pages/Home'
@@ -8,7 +9,17 @@ import { RatCatcher } from './pages/RatCatcher'
 import { useNavigationStore } from './store/navigation'
 
 function App() {
-  const { currentPage } = useNavigationStore()
+  const { currentPage, initializeFromUrl } = useNavigationStore()
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      initializeFromUrl()
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   const renderPage = () => {
     switch (currentPage) {
