@@ -19,7 +19,7 @@ function App() {
 
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
+  }, [initializeFromUrl])
 
   const renderPage = () => {
     switch (currentPage) {
