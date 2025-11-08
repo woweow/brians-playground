@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Calculator, ExternalLink, Cat } from 'lucide-react'
+import { Calculator, ExternalLink, Cat, Palette } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useNavigationStore } from '@/store/navigation'
@@ -23,6 +23,14 @@ export function Apps() {
       color: 'from-emerald-500 to-teal-500',
       tags: ['React', 'TypeScript', 'Game'],
       page: 'ratcatcher' as const,
+    },
+    {
+      icon: Palette,
+      title: 'Drawsaurus',
+      description: 'A simple drawing app with a color palette. Draw freely on the canvas, choose from various colors, and unleash your creativity!',
+      color: 'from-pink-500 to-purple-500',
+      tags: ['React', 'TypeScript', 'Canvas'],
+      page: 'drawsaurus' as const,
     },
   ]
 

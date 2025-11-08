@@ -6,6 +6,7 @@ import { About } from './pages/About'
 import { Apps } from './pages/Apps'
 import { Calculator } from './pages/Calculator'
 import { RatCatcher } from './pages/RatCatcher'
+import { Drawsaurus } from './pages/Drawsaurus'
 import { useNavigationStore } from './store/navigation'
 
 function App() {
@@ -33,13 +34,15 @@ function App() {
         return <Calculator />
       case 'ratcatcher':
         return <RatCatcher />
+      case 'drawsaurus':
+        return <Drawsaurus />
       default:
         return <Home />
     }
   }
 
   // App pages (like calculator) use their own AppLayout and shouldn't be wrapped in the main Layout
-  const isAppPage = currentPage === 'calculator' || currentPage === 'ratcatcher'
+  const isAppPage = currentPage === 'calculator' || currentPage === 'ratcatcher' || currentPage === 'drawsaurus'
 
   if (isAppPage) {
     return (
