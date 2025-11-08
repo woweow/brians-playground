@@ -75,7 +75,7 @@ export function Navigation({ className }: NavigationProps) {
                       className={cn(
                         'text-left px-6 py-4 rounded-lg text-lg font-medium transition-all duration-200',
                         currentPage === item.page
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-lime-400 text-slate-950'
                           : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                       )}
                       whileHover={{ x: 4 }}

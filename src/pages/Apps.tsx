@@ -31,7 +31,7 @@ export function Apps() {
       title: 'Calculator Pro',
       description: 'A modern, feature-rich calculator with advanced mathematical functions and a beautiful interface.',
       tags: ['React', 'TypeScript', 'Tailwind'],
-      color: 'from-blue-500 to-cyan-500',
+      color: 'from-lime-400 to-lime-500',
       status: 'TODO',
     },
     {
@@ -39,7 +39,7 @@ export function Apps() {
       title: 'Color Studio',
       description: 'Interactive color palette generator with real-time preview and export capabilities.',
       tags: ['React', 'Color Theory', 'UI/UX'],
-      color: 'from-purple-500 to-pink-500',
+      color: 'from-lime-300 to-lime-400',
       status: 'TODO',
     },
     {
@@ -47,7 +47,7 @@ export function Apps() {
       title: 'Mini Game Hub',
       description: 'Collection of fun, interactive mini-games built with modern web technologies.',
       tags: ['React', 'Canvas API', 'Game Dev'],
-      color: 'from-green-500 to-emerald-500',
+      color: 'from-lime-400 to-lime-600',
       status: 'TODO',
     },
     {
@@ -55,7 +55,7 @@ export function Apps() {
       title: 'Performance Analyzer',
       description: 'Web performance analysis tool with real-time metrics and optimization suggestions.',
       tags: ['Performance', 'Analytics', 'DevTools'],
-      color: 'from-orange-500 to-red-500',
+      color: 'from-lime-500 to-lime-600',
       status: 'TODO',
     },
   ]
@@ -71,7 +71,7 @@ export function Apps() {
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="text-center mb-16">
-            <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 bg-clip-text text-transparent">
               Apps & Projects
             </h1>
             <p className="text-xl text-slate-400 max-w-2xl mx-auto">
@@ -101,17 +101,17 @@ export function Apps() {
                 }}
                 aria-label={`${project.title} - ${project.description}. Status: ${project.status}`}
               >
-                <Card variant="elevated" className="h-full cursor-pointer group">
+                <Card variant="elevated" className="h-full cursor-pointer group hover:border-lime-400/30">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-4">
                       <div className={`p-3 rounded-lg bg-gradient-to-br ${project.color}`}>
-                        <project.icon size={28} className="text-white" aria-hidden="true" />
+                        <project.icon size={28} className="text-slate-950" aria-hidden="true" />
                       </div>
                       <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-400 text-xs font-medium border border-slate-700">
                         {project.status}
                       </span>
                     </div>
-                    <CardTitle className="group-hover:text-blue-400 transition-colors">
+                    <CardTitle className="group-hover:text-lime-400 transition-colors">
                       {project.title}
                     </CardTitle>
                     <CardDescription>{project.description}</CardDescription>
@@ -121,7 +121,7 @@ export function Apps() {
                       {project.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-3 py-1 rounded-full bg-slate-800/50 text-slate-300 text-xs border border-slate-700/50"
+                          className="px-3 py-1 rounded-full bg-lime-400/10 text-lime-300 text-xs border border-lime-400/30"
                         >
                           {tag}
                         </span>
@@ -147,7 +147,7 @@ export function Apps() {
                   {['React', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Zustand'].map((tech) => (
                     <span
                       key={tech}
-                      className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm border border-slate-700"
+                      className="px-4 py-2 rounded-lg bg-lime-400/10 text-lime-300 text-sm border border-lime-400/30"
                     >
                       {tech}
                     </span>

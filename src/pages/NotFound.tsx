@@ -18,7 +18,7 @@ export function NotFound() {
           >
             {/* 404 Icon */}
             <motion.div
-              className="inline-flex items-center justify-center w-32 h-32 mb-8 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 border border-blue-500/30"
+              className="inline-flex items-center justify-center w-32 h-32 mb-8 rounded-full bg-gradient-to-br from-lime-400/20 to-lime-500/20 border border-lime-400/30"
               animate={{
                 scale: [1, 1.05, 1],
               }}
@@ -28,11 +28,11 @@ export function NotFound() {
                 ease: 'easeInOut',
               }}
             >
-              <Search size={64} className="text-blue-400" />
+              <Search size={64} className="text-lime-400" />
             </motion.div>
 
             {/* 404 Title */}
-            <h1 className="text-8xl sm:text-9xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-8xl sm:text-9xl font-bold mb-4 bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 bg-clip-text text-transparent">
               404
             </h1>
 

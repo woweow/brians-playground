@@ -18,7 +18,7 @@ export function Home() {
           >
             {/* Icon */}
             <motion.div
-              className="inline-flex items-center justify-center w-20 h-20 mb-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600"
+              className="inline-flex items-center justify-center w-20 h-20 mb-8 rounded-full bg-gradient-to-br from-lime-400 to-lime-500"
               animate={{
                 rotate: [0, 360],
               }}
@@ -28,11 +28,11 @@ export function Home() {
                 ease: 'linear',
               }}
             >
-              <Code2 size={40} className="text-white" />
+              <Code2 size={40} className="text-slate-950" />
             </motion.div>
 
             {/* Title */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 bg-clip-text text-transparent">
               Welcome to Brian&rsquo;s Playground
             </h1>
 
@@ -97,10 +97,10 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                className="p-6 rounded-xl bg-slate-900/50 border border-slate-800 backdrop-blur-sm hover:border-slate-700 transition-colors duration-300"
+                className="p-6 rounded-xl bg-slate-900/50 border border-slate-800 backdrop-blur-sm hover:border-lime-400/30 transition-colors duration-300"
               >
-                <div className="flex items-center justify-center w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                  <feature.icon size={24} className="text-white" />
+                <div className="flex items-center justify-center w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-lime-400 to-lime-500">
+                  <feature.icon size={24} className="text-slate-950" />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">
                   {feature.title}

@@ -48,7 +48,7 @@ export function About() {
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="text-center mb-16">
-            <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 bg-clip-text text-transparent">
               About Me
             </h1>
             <p className="text-xl text-slate-400 max-w-2xl mx-auto">
@@ -94,7 +94,7 @@ export function About() {
                         {skillGroup.items.map((item) => (
                           <span
                             key={item}
-                            className="px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 text-sm border border-slate-700"
+                            className="px-3 py-1.5 rounded-full bg-lime-400/10 text-lime-300 text-sm border border-lime-400/30"
                           >
                             {item}
                           </span>
@@ -133,10 +133,10 @@ export function About() {
                       description: 'TODO: Share what you learned and built.',
                     },
                   ].map((job, index) => (
-                    <div key={index} className="relative pl-8 border-l-2 border-blue-500/30">
-                      <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500" />
+                    <div key={index} className="relative pl-8 border-l-2 border-lime-400/30">
+                      <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-lime-400" />
                       <h3 className="text-xl font-semibold text-white">{job.title}</h3>
-                      <p className="text-blue-400 mb-2">{job.company} • {job.period}</p>
+                      <p className="text-lime-400 mb-2">{job.company} • {job.period}</p>
                       <p className="text-slate-400">{job.description}</p>
                     </div>
                   ))}
@@ -155,7 +155,7 @@ export function About() {
                   onClick={() => handleSocialClick(social.label)}
                   whileHover={{ scale: 1.1, y: -4 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors duration-200 border border-slate-700"
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-lime-400 hover:text-slate-950 transition-colors duration-200 border border-slate-700 hover:border-lime-400"
                   aria-label={`Connect on ${social.label}`}
                 >
                   <social.icon size={20} aria-hidden="true" />

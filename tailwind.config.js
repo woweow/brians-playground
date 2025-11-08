@@ -6,7 +6,14 @@ export default {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'lime-neon': '#CCFF00',
+        'lime-primary': '#a3e635', // lime-400
+        'lime-light': '#bef264',   // lime-300
+        'lime-dark': '#84cc16',    // lime-500
+      },
+    },
   },
   plugins: [],
 }
