@@ -36,6 +36,9 @@ export function Drawsaurus() {
       const container = canvas.parentElement
       if (!container) return
 
+      // Save current canvas content
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
       const rect = container.getBoundingClientRect()
       canvas.width = rect.width
       canvas.height = rect.height
@@ -43,6 +46,9 @@ export function Drawsaurus() {
       // Fill with white background
       ctx.fillStyle = '#FFFFFF'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      // Restore the saved image
+      ctx.putImageData(imageData, 0, 0)
     }
 
     resizeCanvas()
@@ -52,6 +58,8 @@ export function Drawsaurus() {
   }, [])
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault()
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -66,6 +74,7 @@ export function Drawsaurus() {
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return
+    e.preventDefault()
 
     const canvas = canvasRef.current
     if (!canvas) return
@@ -90,9 +99,10 @@ export function Drawsaurus() {
     const rect = canvas.getBoundingClientRect()
 
     if ('touches' in e) {
+      const touch = e.touches[0] || e.changedTouches[0]
       return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
       }
     }
 
@@ -184,7 +194,7 @@ export function Drawsaurus() {
             </div>
 
             {/* Canvas area */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden" style={{ height: 'calc(100vh - 250px)' }}>
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden h-[calc(100svh-250px)] min-h-[400px]">
               <canvas
                 ref={canvasRef}
                 onMouseDown={startDrawing}
