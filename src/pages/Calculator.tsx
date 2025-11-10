@@ -1,4 +1,4 @@
-import { useState, useCallback, memo, useRef } from 'react'
+import { useState, useCallback, memo, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AppLayout } from '@/components/AppLayout'
 import { Home, Zap } from 'lucide-react'
@@ -126,6 +126,7 @@ const generateShatterPieces = (width: number, height: number, imageData: string)
 export function Calculator() {
   const { setCurrentPage } = useNavigationStore()
   const calculatorRef = useRef<HTMLDivElement>(null)
+  const shatterTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [display, setDisplay] = useState('0')
   const [equation, setEquation] = useState('')
   const [previousValue, setPreviousValue] = useState<number | null>(null)
@@ -146,6 +147,15 @@ export function Calculator() {
   }> | null>(null)
   const [isShattered, setIsShattered] = useState(false)
   const [showCracks, setShowCracks] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if (shatterTimeoutRef.current) {
+        clearTimeout(shatterTimeoutRef.current)
+        shatterTimeoutRef.current = null
+      }
+    }
+  }, [])
 
   const handleNumber = useCallback((num: string) => {
     setDisplay(prev => {
@@ -184,9 +194,7 @@ export function Calculator() {
     setOperation(null)
     setShouldResetDisplay(true)
 
-    // Check for the special numbers 69 and 420
     if (result === 69 || result === 420) {
-      // Capture calculator before shattering
       if (calculatorRef.current) {
         try {
           const canvas = await html2canvas(calculatorRef.current, {
@@ -201,20 +209,21 @@ export function Calculator() {
           const centerX = rect.width / 2
           const centerY = rect.height / 2
 
-          // Generate crack lines
           const cracks = generateCrackLines(centerX, centerY, rect.width, rect.height)
           setCrackLines(cracks)
-
-          // Show cracks first
           setShowCracks(true)
 
-          // After crack animation, shatter into pieces
-          setTimeout(() => {
+          if (shatterTimeoutRef.current) {
+            clearTimeout(shatterTimeoutRef.current)
+          }
+
+          shatterTimeoutRef.current = setTimeout(() => {
             const pieces = generateShatterPieces(rect.width, rect.height, imageData)
             setShatterPieces(pieces)
             setIsShattered(true)
             setShowCracks(false)
-          }, 400) // Delay before shattering
+            shatterTimeoutRef.current = null
+          }, 400)
         } catch (error) {
           console.error('Failed to capture calculator:', error)
         }

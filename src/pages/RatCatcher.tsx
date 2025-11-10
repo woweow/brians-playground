@@ -26,8 +26,8 @@ export function RatCatcher() {
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const isTouching = useRef(false)
   const hasBeenCaught = useRef(false)
+  const catchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Load high score from localStorage
   useEffect(() => {
     const savedHighScore = localStorage.getItem('ratCatcherHighScore')
     if (savedHighScore) {
@@ -35,7 +35,6 @@ export function RatCatcher() {
     }
   }, [])
 
-  // Update high score
   useEffect(() => {
     if (score > highScore) {
       setHighScore(score)
@@ -43,12 +42,11 @@ export function RatCatcher() {
     }
   }, [score, highScore])
 
-  // Generate random position for rat (final position on screen)
   const generateRandomPosition = useCallback((): Position => {
     if (!gameAreaRef.current) return { x: 0, y: 0 }
 
     const rect = gameAreaRef.current.getBoundingClientRect()
-    const padding = 60 // Keep rat away from edges
+    const padding = 60
 
     return {
       x: Math.random() * (rect.width - padding * 2) + padding,
@@ -56,40 +54,26 @@ export function RatCatcher() {
     }
   }, [])
 
-  // Generate random edge position for rat to enter from
   const generateEdgePosition = useCallback((): Position => {
     if (!gameAreaRef.current) return { x: -100, y: 0 }
 
     const rect = gameAreaRef.current.getBoundingClientRect()
-    const edge = Math.floor(Math.random() * 4) // 0: top, 1: right, 2: bottom, 3: left
-    const offset = 100 // How far off-screen to start
+    const edge = Math.floor(Math.random() * 4)
+    const offset = 100
 
     switch (edge) {
-      case 0: // Top edge
-        return {
-          x: Math.random() * rect.width,
-          y: -offset
-        }
-      case 1: // Right edge
-        return {
-          x: rect.width + offset,
-          y: Math.random() * rect.height
-        }
-      case 2: // Bottom edge
-        return {
-          x: Math.random() * rect.width,
-          y: rect.height + offset
-        }
-      case 3: // Left edge
+      case 0:
+        return { x: Math.random() * rect.width, y: -offset }
+      case 1:
+        return { x: rect.width + offset, y: Math.random() * rect.height }
+      case 2:
+        return { x: Math.random() * rect.width, y: rect.height + offset }
+      case 3:
       default:
-        return {
-          x: -offset,
-          y: Math.random() * rect.height
-        }
+        return { x: -offset, y: Math.random() * rect.height }
     }
   }, [])
 
-  // Generate complete rat state (initial edge position + final on-screen position)
   const generateRatState = useCallback((): RatState => {
     return {
       initial: generateEdgePosition(),
@@ -97,23 +81,18 @@ export function RatCatcher() {
     }
   }, [generateEdgePosition, generateRandomPosition])
 
-  // Initialize rat state
   useEffect(() => {
     setRatState(generateRatState())
   }, [generateRatState])
 
-  // Check collision between cat and rat
   const checkCollision = useCallback(() => {
     const distance = Math.sqrt(
       Math.pow(catPosition.x - ratState.final.x, 2) +
       Math.pow(catPosition.y - ratState.final.y, 2)
     )
-
-    // Collision threshold (size of cat + rat icons)
     return distance < 45
   }, [catPosition, ratState.final])
 
-  // Handle mouse movement
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!gameAreaRef.current) return
 
@@ -126,7 +105,6 @@ export function RatCatcher() {
     if (!gameStarted) setGameStarted(true)
   }, [gameStarted])
 
-  // Handle touch movement
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!gameAreaRef.current || !isTouching.current) return
 
@@ -142,7 +120,6 @@ export function RatCatcher() {
     if (!gameStarted) setGameStarted(true)
   }, [gameStarted])
 
-  // Handle touch start
   const handleTouchStart = useCallback((e: TouchEvent) => {
     isTouching.current = true
     if (!gameAreaRef.current) return
@@ -158,12 +135,10 @@ export function RatCatcher() {
     if (!gameStarted) setGameStarted(true)
   }, [gameStarted])
 
-  // Handle touch end
   const handleTouchEnd = useCallback(() => {
     isTouching.current = false
   }, [])
 
-  // Add event listeners
   useEffect(() => {
     const gameArea = gameAreaRef.current
     if (!gameArea) return
@@ -181,30 +156,34 @@ export function RatCatcher() {
     }
   }, [handleMouseMove, handleTouchMove, handleTouchStart, handleTouchEnd])
 
-  // Check for collisions
   useEffect(() => {
     if (!gameStarted) return
 
     if (checkCollision() && !hasBeenCaught.current) {
-      // Mark this rat as caught to prevent multiple increments
       hasBeenCaught.current = true
-
-      // Trigger catch animation
       setCatchAnimation(true)
-
-      // Increment score by exactly 1
       setScore((prev) => prev + 1)
 
-      // Generate new rat state after a short delay
-      setTimeout(() => {
+      if (catchTimeoutRef.current) {
+        clearTimeout(catchTimeoutRef.current)
+      }
+
+      catchTimeoutRef.current = setTimeout(() => {
         setRatState(generateRatState())
         setCatchAnimation(false)
-        hasBeenCaught.current = false // Reset for next rat
+        hasBeenCaught.current = false
+        catchTimeoutRef.current = null
       }, 200)
+    }
+
+    return () => {
+      if (catchTimeoutRef.current) {
+        clearTimeout(catchTimeoutRef.current)
+        catchTimeoutRef.current = null
+      }
     }
   }, [catPosition, checkCollision, generateRatState, gameStarted])
 
-  // Reset game
   const resetGame = () => {
     setScore(0)
     setGameStarted(false)

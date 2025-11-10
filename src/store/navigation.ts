@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-type Page = 'home' | 'about' | 'apps' | 'calculator' | 'ratcatcher' | 'drawsaurus'
+type Page = 'home' | 'about' | 'apps' | 'calculator' | 'ratcatcher' | 'drawsaurus' | 'globeexplorer'
 
 interface NavigationState {
   currentPage: Page
@@ -14,7 +14,7 @@ interface NavigationState {
 // Helper function to get page from URL hash
 const getPageFromHash = (): Page => {
   const hash = window.location.hash.slice(1) // Remove #
-  const validPages: Page[] = ['home', 'about', 'apps', 'calculator', 'ratcatcher', 'drawsaurus']
+  const validPages: Page[] = ['home', 'about', 'apps', 'calculator', 'ratcatcher', 'drawsaurus', 'globeexplorer']
   return validPages.includes(hash as Page) ? (hash as Page) : 'home'
 }
 

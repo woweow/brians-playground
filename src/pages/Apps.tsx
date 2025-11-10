@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Calculator, ExternalLink, Cat, Palette } from 'lucide-react'
+import { Calculator, ExternalLink, Cat, Palette, Globe } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useNavigationStore } from '@/store/navigation'
@@ -31,6 +31,14 @@ export function Apps() {
       color: 'from-pink-500 to-purple-500',
       tags: ['React', 'TypeScript', 'Canvas'],
       page: 'drawsaurus' as const,
+    },
+    {
+      icon: Globe,
+      title: 'Globe Explorer',
+      description: 'An interactive 3D globe featuring the world\'s top 10 most populous metropolitan areas. Explore cities with photo-realistic Earth textures, dynamic lighting, and detailed information.',
+      color: 'from-blue-500 to-cyan-500',
+      tags: ['React', 'Three.js', '3D'],
+      page: 'globeexplorer' as const,
     },
   ]
 
